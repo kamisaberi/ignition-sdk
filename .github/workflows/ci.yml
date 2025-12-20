@@ -1,0 +1,59 @@
+# This GitHub Actions workflow defines our Continuous Integration (CI) pipeline.
+# It runs automatically on every push and pull request to ensure code quality and prevent regressions.
+
+name: Ignition SDK CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    # We can run our tests on multiple operating systems.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      # 1. Check out the source code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js and Yarn (for our monorepo tooling)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - name: Install root dependencies
+        run: yarn install
+
+      # 3. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python build tools
+        run: pip install -r requirements.txt # A hypothetical root requirements file for dev tools
+
+      # 4. Set up C++ build environment (install CMake, compilers, etc.)
+      # This would be a more complex step in a real project, potentially
+      # installing CUDA and TensorRT in the CI runner.
+      - name: Set up C++ environment
+        run: echo "Setting up build tools..." # Placeholder
+
+      # 5. Run the build for the entire monorepo
+      # This single command, orchestrated by Turborepo, will build all C++
+      # libraries and all language packages in the correct order.
+      - name: Build all packages
+        run: yarn build
+
+      # 6. Run the tests for the entire monorepo
+      # This will run C++ tests, Python tests, Rust tests, etc.
+      - name: Run all tests
+        run: yarn test
