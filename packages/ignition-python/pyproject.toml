@@ -1,0 +1,54 @@
+# This file defines the metadata and build system for our Python package.
+# It follows the PEP 517/518 standard.
+
+[project]
+name = "ignition-infer"
+version = "1.0.1"
+description = "High-performance AI inference runtime from Ignition AI."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Ignition AI Team", email = "contact@ignition-hub.ai" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/ignition-sdk"
+Documentation = "https://docs.ignition-hub.ai"
+Repository = "https://github.com/your-org/ignition-sdk"
+
+# Define the dependencies required to RUN the library.
+[project.dependencies] = [
+    "numpy>=1.21"
+]
+
+# --- Build System Configuration ---
+# This section is the key to our C++/Python hybrid build.
+[build-system]
+# We declare that our build process requires these packages to run.
+requires = [
+    "scikit-build-core>=0.4",
+    "pybind11>=2.10",
+    "cmake>=3.15"
+]
+# We specify that `pip` should use `scikit-build-core` as the build backend.
+build-backend = "scikit_build_core.build"
+
+
+# --- scikit-build-core Configuration ---
+# This is where we tell our build backend how to find and build the C++ parts.
+[tool.scikit-build]
+# The root of the CMake project is two levels up from this file.
+cmake.source-dir = "../../"
+
+# We can pass configuration arguments to CMake.
+# For example, we could have a flag to enable/disable certain features.
+cmake.args = ["-DBUILD_PYTHON_BINDINGS=ON"]
+
+# This tells scikit-build to only install the Python package (`ignition-python`)
+# from the larger CMake project, not other targets like tests or examples.
+wheel.packages = ["packages/ignition-python/ignition"]
